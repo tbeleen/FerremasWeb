@@ -1,0 +1,219 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Banner superior -->
+     <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-warning text-dark p-4 rounded-3">
+                <h1 class="display-5 fw-bold"><i class="bi bi-nut-fill me-3"></i>Tornillos y Anclajes</h1>
+                <p class="fs-5">Sujeción segura y profesional para todos tus proyectos de construcción y remodelación</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón Retroceder -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Productos destacados -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold border-bottom pb-2">Productos Destacados</h2>
+        </div>
+
+        {% if producto_filtrados and producto_filtrados.0.nombre_prod %}
+            {% for p in producto_filtrados %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0">                   
+                    <!-- Imagen del producto -->
+                    <a href="{% url 'detalle_producto' p.id_producto %}">
+                        <img src="{{p.imagen_url}}" class="card-img-top p-2" alt="{{p.nombre_prod}}" style="height: 150px; object-fit: contain; width: 100%; background-color: #f8f9fa; border-radius: 8px 8px 0 0;">
+                    </a>
+
+                    <div class="card-body p-3 d-flex flex-column">
+                        <!-- Nombre y modelo -->
+                        <a href="{% url 'detalle_producto' p.id_producto %}" class="text-decoration-none text-dark">
+                            <h6 class="card-title mb-1">{{p.nombre_prod|truncatechars:30}}</h6>
+                            <p class="text-muted small mb-2">{{p.modelo_prod|truncatechars:20}}</p>
+                        </a>
+
+                        <!-- Precio y stock -->
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="text-danger mb-0">${{p.precio_prod}}</h5>
+                                <span class="badge bg-success">Stock: {{p.stock}}</span>
+                            </div>
+
+                            <!-- Botón Agregar al carrito -->
+                            {% if request.session.usuario_rol == 'cliente' %}
+                            <form method="post" action="{% url 'agregar_al_carrito' p.id_producto %}" class="mt-2 add-to-cart-form">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="number" name="cantidad" value="1" min="1" max="{{p.stock}}" class="form-control form-control-sm" style="max-width: 60px;">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-sm btn-success w-100 mt-2">
+                                <i class="bi bi-cart-plus"></i> Agregar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    No hay productos disponibles para esta categoría.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="addToCartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Carrito</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toastMessage"></div>
+  </div>
+</div>
+
+<style>
+    /* Estilos para las cartas de productos */
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 8px;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card-img-top {
+        background-color: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .input-group .form-control-sm {
+        max-width: 60px;
+    }
+    
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+        .card-img-top {
+            height: 120px !important;
+        }
+        
+        .card-title {
+            font-size: 0.9rem !important;
+        }
+        
+        .text-muted {
+            font-size: 0.8rem !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .card-img-top {
+            height: 100px !important;
+        }
+        
+        .card-body {
+            padding: 0.75rem !important;
+        }
+    }
+    
+    /* Estilo para el contador del carrito */
+    .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Función para actualizar el contador del carrito
+    function updateCartCount() {
+        $.ajax({
+            url: '{% url "contar_carrito" %}',
+            type: 'GET',
+            success: function(data) {
+                let cartBadge = $('.cart-icon .badge');
+                
+                if (data.count > 0) {
+                    if (cartBadge.length === 0) {
+                        $('.cart-icon').append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count">'+data.count+'</span>');
+                    } else {
+                        cartBadge.text(data.count);
+                    }
+                } else {
+                    cartBadge.remove();
+                }
+            }
+        });
+    }
+
+    // Manejar agregar al carrito con AJAX
+    $(document).on('submit', '.add-to-cart-form', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const productName = form.closest('.card').find('.card-title').text().trim();
+        
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            headers: {
+                'X-CSRFToken': form.find('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Actualizar contador del carrito
+                    updateCartCount();
+                    
+                    // Mostrar notificación
+                    const toast = new bootstrap.Toast(document.getElementById('addToCartToast'));
+                    $('#toastMessage').text('¡' + productName + ' agregado al carrito!');
+                    toast.show();
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.error(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    });
+
+    // Actualizar contador al cargar la página
+    updateCartCount();
+});
+</script>
+{% endblock %}

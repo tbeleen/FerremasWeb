@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://www.paypal.com/sdk/js?client-id=AS3TEKFleZEQ3uOSGUU32XWS9zmZNPBi-UkWU9oQrCjzTx1yFRtFgzaZEqpKEpE3BK2u6qOzO7ZmDkCM&currency=USD"></script>
+  <style>
+    body { background-color: #f9f9f9; }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: black;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+
+      <!-- Logo -->
+      <div class="text-center mb-4">
+        <img src="../../static/app/img/logo2.png" alt="Logo" height="40">
+      </div>
+
+      <!-- Pasos -->
+      <div class="d-flex justify-content-center align-items-center mb-4">
+        <div class="step-circle me-2 bg-secondary">1</div>
+        <span class="me-4 text-muted">Información</span>
+        <div class="step-circle me-2 bg-black">2</div>
+        <span class="fw-bold text-dark">Pago</span>
+      </div>
+
+      <!-- Resumen del carrito -->
+      <div class="bg-white p-4 shadow rounded">
+        <h5 class="mb-3 text-center">
+          🛒 {{ cantidad_total_productos }} artículos 
+          <a href="{% url 'carrito' %}" class="float-end small">Editar carrito</a>
+        </h5>
+
+        {% for p in productos %}
+        <div class="d-flex mb-3 align-items-center">
+          <img src="{{ p.imagen_url }}" class="me-3 rounded" style="width:60px;height:60px;">
+          <div>
+            <strong>{{ p.nombre_prod }}</strong><br>
+            Cantidad: {{ p.cantidad }}<br>
+            <span>Subtotal: ${{ p.subtotal|floatformat:2 }}</span>
+          </div>
+        </div>
+        {% endfor %}
+
+        <hr>
+        <p><strong>Subtotal:</strong> ${{ total|floatformat:2 }}</p>
+
+        {% if cupon %}
+          <p><strong>Cupón aplicado:</strong> {{ cupon.codigo }}</p>
+          <p><strong>Descuento:</strong> -${{ descuento|floatformat:2 }}</p>
+        {% endif %}
+
+        <p class="fs-5"><strong>Total a pagar:</strong> <span class="text-success">${{ total_final|floatformat:2 }}</span></p>
+
+        <!-- Selector de método de pago -->
+        <h5 class="mb-3">Método de pago</h5>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="metodo_pago" id="metodo_paypal" value="paypal" checked>
+          <label class="form-check-label" for="metodo_paypal">PayPal</label>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="radio" name="metodo_pago" id="metodo_transferencia" value="transferencia">
+          <label class="form-check-label" for="metodo_transferencia">Transferencia Bancaria</label>
+        </div>
+
+        <!-- PayPal -->
+        <div id="paypal-box" class="alert alert-info text-center">
+          <div id="paypal-button-container"></div>
+        </div>
+
+        <!-- Transferencia -->
+        <form id="transferencia-form" action="{% url 'pago_transferencia' %}" method="POST" enctype="multipart/form-data" style="display: none;">
+          {% csrf_token %}
+          <input type="hidden" name="total_final" value="{{ total_final }}">
+          <div class="mb-3">
+          <h6>Datos para realizar la transferencia:</h6>
+          <ul class="list-unstyled">
+            <li><strong>Banco:</strong> Banco de Chile</li>
+            <li><strong>Tipo de Cuenta:</strong> Cuenta Corriente</li>
+            <li><strong>Número de Cuenta:</strong> 12345678</li>
+            <li><strong>Nombre del Titular:</strong> Juan Pérez</li>
+            <li><strong>RUT:</strong> 12.345.678-9</li>
+            <li><strong>Email:</strong> pagos@empresa.cl</li>
+          </ul>
+          <div class="alert alert-warning mt-2">
+            Recuerda enviar el comprobante para procesar tu pedido.
+          </div>
+        </div>
+          <div class="mb-3">
+            <label for="comprobante" class="form-label">Sube el comprobante de transferencia</label>
+            <input type="file" class="form-control" name="comprobante" id="comprobante" required>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Confirmar pago por transferencia</button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Botones de PayPal
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: '{{ total_final|floatformat:2 }}'
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+  return actions.order.capture().then(function(orderData) {
+    fetch("{% url 'finalizar_pago_paypal' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ orderID: data.orderID })
+    }).then(response => response.json())
+    .then(result => {
+      if(result.success){
+        // Mostrar alerta de éxito
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success text-center fixed-top m-3';
+        alert.innerHTML = '✅ ¡Pago exitoso! Serás redirigido en 5 segundos.';
+        document.body.appendChild(alert);
+
+        // Redirigir después de 5 segundos
+        setTimeout(() => {
+          window.location.href = "{% url 'index' %}";
+        }, 5000);
+      } else {
+        alert("Hubo un error al registrar el pedido.");
+        console.error(result.error);
+      }
+    })
+    .catch(error => {
+      alert("Error inesperado.");
+      console.error(error);
+    });
+  });
+}
+
+  }).render('#paypal-button-container');
+
+  // Cambiar método de pago
+  document.querySelectorAll('input[name="metodo_pago"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+      if (this.value === 'paypal') {
+        document.getElementById('paypal-box').style.display = 'block';
+        document.getElementById('transferencia-form').style.display = 'none';
+      } else {
+        document.getElementById('paypal-box').style.display = 'none';
+        document.getElementById('transferencia-form').style.display = 'block';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

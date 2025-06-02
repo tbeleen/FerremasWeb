@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f9f9f9; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; background: black; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .card-radio { cursor: pointer; border: 1px solid #ccc; padding: 1rem; border-radius: .5rem; margin-bottom: 1rem; }
+    .card-radio.active { border-color: black; background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <div class="mb-4">
+        <img src="{% static 'app/img/logo2.png' %}" alt="Logo" height="40">
+      </div>
+
+      <div class="d-flex align-items-center mb-4">
+        <div class="step-circle me-2">1</div>
+        <span class="me-auto">Información</span>
+        <div class="step-circle me-2 bg-secondary">2</div>
+        <span class="text-muted">Pago</span>
+      </div>
+      <label class="form-label">¿Tienes un cupón?</label>
+      <div class="input-group mb-3">
+        <input type="text" id="codigo-cupon" class="form-control" placeholder="Código de cupón">
+        <button class="btn btn-outline-secondary" type="button" id="btn-aplicar-cupon">Aplicar</button>
+      </div>
+      <div id="mensaje-cupon" class="mb-3"></div>
+
+      <form id="checkout-form" method="POST" action="{% url 'procesar_checkout' %}">
+        {% csrf_token %}
+        <input type="hidden" name="cupon_codigo" id="cupon_codigo" value="">
+
+        <h5 class="mb-3">Contacto</h5>
+        <div class="mb-3">
+          <label for="rut" class="form-label">Rut *</label>
+          <input type="text" name="rut" class="form-control" id="rut" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">E-mail *</label>
+          <input type="email" name="email" class="form-control" id="email" required>
+        </div>
+        <div class="mb-3">
+          <label for="telefono" class="form-label">Número Teléfono *</label>
+          <input type="tel" name="telefono" class="form-control" id="telefono" required>
+        </div>
+
+        {% if cupon %}
+          <div class="alert alert-success mt-2 d-flex justify-content-between align-items-center">
+            <div>
+              Cupón <strong>{{ cupon.codigo }}</strong> aplicado correctamente.
+            </div>
+            <form method="POST" action="{% url 'eliminar_cupon' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger ms-3">Eliminar</button>
+            </form>
+          </div>
+        {% endif %}
+        <h5 class="mb-3">Envío</h5>
+        {% for tipo in tipos_entrega %}
+        <div class="card-radio" onclick="selectOption(this)">
+          <input type="radio" name="tipo_envio" value="{{ tipo.id_tipo_entrega }}" class="form-check-input me-2" required>
+          {{ tipo.tipo_entrega }}
+        </div>
+        {% endfor %}
+
+        <div id="direccion-box" class="mt-3" style="display: none;">
+          <label class="form-label">Dirección de envío</label>
+          <input type="text" name="direccion" class="form-control mb-2" placeholder="Calle, número, comuna">
+        </div>
+
+        <div id="tienda-box" class="mt-3" style="display: none;">
+          {% if sucursales %}
+          <label class="form-label">Selecciona una tienda</label>
+          <select class="form-select" name="sucursal" required>
+            {% for suc in sucursales %}
+              <option value="{{ suc.id_sucursal }}">{{ suc.nombre }}</option>
+            {% endfor %}
+          </select>
+          {% else %}
+          <p style="color: red;">No hay sucursales disponibles.</p>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100 mt-3">Continuar con el pago</button>
+      </form>
+    </div>  
+
+    <div class="col-lg-5">
+      <div class="bg-white p-4 shadow rounded">
+        <h5 class="mb-3">🛒 {{ cantidad_total_productos }} <a href="{% url 'carrito' %}" class="float-end small">Editar carrito</a></h5>
+
+        {% for p in productos %}
+        <div class="d-flex mb-3 align-items-center">
+          <img src="{{ p.imagen_url }}" class="me-3 rounded" style="width:60px;height:60px;">
+          <div>
+            <strong>{{ p.nombre_prod }}</strong><br>
+            Cantidad: {{ p.cantidad }}<br>
+            <span>Subtotal: ${{ p.subtotal }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      <p><strong>Subtotal:</strong> ${{ total }}</p>
+      <p class="fs-5"><strong>Total:</strong> <span class="text-success">${{ total }}</span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function selectOption(element) {
+    document.querySelectorAll('.card-radio').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+
+    const input = element.querySelector('input[type="radio"]');
+    input.checked = true;
+
+    const tipoId = input.value;
+
+    if (tipoId === "2") {
+      document.getElementById('direccion-box').style.display = 'block';
+      document.getElementById('tienda-box').style.display = 'none';
+    } else if (tipoId === "1") {
+      document.getElementById('direccion-box').style.display = 'none';
+      document.getElementById('tienda-box').style.display = 'block';
+    } else {
+      document.getElementById('direccion-box').style.display = 'none';
+      document.getElementById('tienda-box').style.display = 'none';
+    }
+  }
+
+  document.getElementById('btn-aplicar-cupon').addEventListener('click', async () => {
+    const codigo = document.getElementById('codigo-cupon').value.trim();
+    const rut = document.getElementById('rut').value.trim();
+
+    if (!codigo) {
+      mostrarMensaje('Ingrese un código de cupón.', 'danger');
+      return;
+    }
+    if (!rut) {
+      mostrarMensaje('Ingrese su RUT antes de aplicar el cupón.', 'danger');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/cupon/validar?codigo=${encodeURIComponent(codigo)}&rut=${encodeURIComponent(rut)}`);
+      const data = await response.json();
+
+      if (response.ok && data.valido) {
+        mostrarMensaje(`Cupón aplicado. Descuento: ${data.descuento}%`, 'success');
+        document.getElementById('cupon_codigo').value = codigo;
+      } else {
+        mostrarMensaje(data.mensaje || 'Cupón inválido o expirado.', 'danger');
+        document.getElementById('cupon_codigo').value = '';
+      }
+    } catch (error) {
+      mostrarMensaje('Error al validar el cupón.', 'danger');
+      document.getElementById('cupon_codigo').value = '';
+    }
+  });
+
+  function mostrarMensaje(texto, tipo) {
+    const contenedor = document.getElementById('mensaje-cupon');
+    contenedor.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
+  }
+
+  function eliminarCupon() {
+  fetch("{% url 'eliminar_cupon' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      mostrarMensaje(data.mensaje, 'warning');
+      setTimeout(() => {
+        location.reload();
+      }, 1000); 
+    } else {
+      mostrarMensaje(data.mensaje, 'danger');
+    }
+  })
+  .catch(error => {
+    mostrarMensaje('Error al eliminar el cupón.', 'danger');
+  });
+}
+</script>
+</body>
+</html>

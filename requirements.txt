@@ -1,0 +1,7 @@
+pip install requests
+pip install django
+npm i bootstrap@5.3.6 
+npm install axios
+pip install reportlab
+pip install openpyxl
+

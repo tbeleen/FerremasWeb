@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel del Contador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .comprobante-img {
+      max-width: 150px;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .badge-status {
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg px-4">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'contador' %}">
+            <img src="../../static/app/img/logo2.png" alt="Logo" width="160" class="me-2">
+        </a>
+
+        <!-- Contenedor para centrar el buscador -->
+        <div class="mx-auto order-1 order-lg-0 my-2 my-lg-0">
+            <div class="d-flex" role="search">
+                <input id="input-busqueda" class="form-control me-2" type="search" placeholder="Buscar por RUT o N°Pedido" aria-label="Buscar" style="width: 300px;">
+            </div>
+        </div>
+
+        <!-- Parte derecha de la navbar -->
+        <div class="d-flex align-items-center gap-3 order-2">
+            <i class="bi bi-person fs-4"></i>
+            <span><strong>{{ usuario.nombre }}</strong></span>
+            <a href="#" class="text-decoration-none">Informes</a>
+            <a href="{% url 'logout' %}" class="text-decoration-none">Cerrar Sesión</a>
+        </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h2 class="text-center mb-4">📊 Panel del Contador</h2>
+
+    <div class="text-center mb-3">
+              <a href="?estado=N" class="btn btn-outline-warning {% if estado_actual == 'N' %}active{% endif %}">🕒 Pendientes</a>
+              <a href="?estado=S" class="btn btn-outline-success {% if estado_actual == 'S' %}active{% endif %}">✅ Confirmados</a>
+              <a href="?estado=R" class="btn btn-outline-danger {% if estado_actual == 'R' %}active{% endif %}">❌ Rechazados</a>
+            </div>
+
+
+    <!-- Pagos por Transferencia -->
+    <div class="card mb-5 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        💸 Pagos Pendientes de Confirmación
+      </div>
+      <div class="card-body p-0">
+        {% if transferencias %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>N°Pedido</th>
+                <th>Comprobante</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-trabajadores">
+              {% for transferencia in transferencias %}
+              <tr>
+                <td>{{ transferencia.rut }}</td>
+                <td>${{ transferencia.total }}</td>
+                <td>
+                  <span class="badge bg-warning text-dark badge-status">{{ transferencia.id_pago }}</span>
+                </td>
+                <td>
+                  {% if transferencia.archivo_comprobante %}
+                    <img src="http://localhost:3000/uploads/{{ transferencia.archivo_comprobante }}"
+                        alt="Comprobante"
+                        style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modal{{ forloop.counter }}">
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="modal{{ forloop.counter }}" tabindex="-1" aria-labelledby="modalLabel{{ forloop.counter }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel{{ forloop.counter }}">Comprobante de Transferencia</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                          </div>
+                          <div class="modal-body text-center">
+                            <img src="http://localhost:3000/uploads/{{ transferencia.archivo_comprobante }}"
+                                alt="Comprobante Grande"
+                                style="max-width: 100%; height: auto;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <span class="text-muted">Sin comprobante</span>
+                  {% endif %}
+                </td>
+
+                <td class="text-end">
+                  {% if transferencia.ID %}
+                    <a href="{% url 'confirmar_transferencia' transferencia.ID %}" class="btn btn-success btn-sm me-1">✔ Confirmar</a>
+                    <a href="{% url 'rechazar_transferencia' transferencia.ID %}" class="btn btn-danger btn-sm">✖ Rechazar</a>
+                  {% else %}
+                    <span class="text-muted">No disponible</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info m-3">No hay transferencias pendientes.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputBusqueda = document.getElementById('input-busqueda');
+            const filas = document.querySelectorAll('#tabla-trabajadores tr');
+
+            inputBusqueda.addEventListener('input', () => {
+                const valor = inputBusqueda.value.toLowerCase();
+
+                filas.forEach(fila => {
+                    const rut = fila.children[0].textContent.toLowerCase();     // columna 0: RUT
+                    const pedido = fila.children[2].textContent.toLowerCase();
+
+                    const coincide = rut.includes(valor) || pedido.includes(valor)
+                    fila.style.display = coincide ? '' : 'none';
+                });
+            });
+        });
+    </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

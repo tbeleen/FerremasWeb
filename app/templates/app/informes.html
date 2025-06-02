@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informes del Sistema</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .report-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      overflow: hidden;
+    }
+    .report-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .icon-wrapper {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    .page-header {
+      position: relative;
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+    }
+    .page-header:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, #0d6efd, #20c997);
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="mb-4">
+      <button onclick="history.back()" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Volver atrás
+      </button>
+    </div>
+    
+    <div class="page-header text-center">
+      <h1 class="display-5 fw-bold text-primary mb-3">Informes del Sistema</h1>
+      <p class="lead text-muted">Descarga reportes detallados en formato Excel</p>
+    </div>
+    
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8">
+        <div class="report-card card bg-primary bg-opacity-10 border-primary border-2">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <div class="icon-wrapper bg-primary text-white me-3">
+                    <i class="fas fa-file-invoice-dollar fs-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="h4 mb-1 text-primary">Informe de Pagos</h3>
+                    <p class="mb-0 text-muted">Genera un informe detallado de todos los pagos realizados.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'descargar_excel_pagos' %}" class="btn btn-primary px-4 rounded-pill">
+                  <i class="fas fa-download me-2"></i>Descargar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-8">
+        <div class="report-card card bg-success bg-opacity-10 border-success border-2">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <div class="icon-wrapper bg-success text-white me-3">
+                    <i class="fas fa-clipboard-list fs-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="h4 mb-1 text-success">Informe de Pedidos</h3>
+                    <p class="mb-0 text-muted">Visualiza el estado y detalles de los pedidos recibidos.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'descargar_excel_pedidos' %}" class="btn btn-success px-4 rounded-pill">
+                  <i class="fas fa-download me-2"></i>Descargar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="report-card card bg-warning bg-opacity-10 border-warning border-2">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                  <div class="icon-wrapper bg-warning text-white me-3">
+                    <i class="fas fa-boxes fs-4"></i>
+                  </div>
+                  <div>
+                    <h3 class="h4 mb-1 text-warning">Informe de Inventario</h3>
+                    <p class="mb-0 text-muted">Consulta el estado actual del inventario en bodega.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'descargar_excel_productos' %}" class="btn btn-warning px-4 rounded-pill">
+                  <i class="fas fa-download me-2"></i>Descargar
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

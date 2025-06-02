@@ -1,0 +1,76 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2 class="text-center my-4">🛒 Mis Pedidos</h2>
+
+{% if pedidos %}
+  <div class="container">
+    <div class="row">
+      {% for pedido in pedidos %}
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm border-primary h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <h5 class="card-title text-primary">🧾 Pedido #{{ pedido.id_pedido }}</h5>
+                
+                <ul class="list-unstyled">
+                  {% for producto in pedido.productos %}
+                    <li class="mb-2">
+                      <strong>Producto:</strong> {{ producto.nombre_prod }}<br>
+                      <strong>Cantidad:</strong> {{ producto.cantidad }}<br>
+                      <strong>Precio unitario:</strong> ${{ producto.precio_unitario }}<br>
+                      <strong>Subtotal:</strong> ${{ producto.subtotal }}
+                    </li>
+                    <hr>
+                  {% endfor %}
+                </ul>
+
+                <p class="card-text">
+                  <strong>Total:</strong> <span class="text-success fw-bold">${{ pedido.total }}</span><br>
+
+                  {% if pedido.descuento and pedido.descuento > 0 %}
+                    <strong>Descuento aplicado (Cupón: {{ pedido.cupon_codigo }}):</strong> -${{ pedido.descuento }}<br>
+                    <strong>Total con descuento:</strong> 
+                    <span class="text-success fw-bold">
+                      ${{ pedido.total|add:"-"|add:pedido.descuento }}
+                    </span><br>
+                  {% endif %}
+
+                  <strong>Estado del Pedido:</strong>
+                  <span class="badge {% if pedido.estado == 'Entregado' %}bg-success{% elif pedido.estado == 'Cancelado' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                    {{ pedido.estado|default:"Pendiente" }}
+                  </span><br>
+
+                  <strong>Fecha:</strong> {{ pedido.fecha }}<br>
+
+                  <strong>Tipo de pago:</strong> {{ pedido.tipo_pago|default:"No especificado" }}<br>
+
+                  {% if pedido.pago_confirmado == 'S' %}
+                    <strong>Pago confirmado:</strong> ✅ Sí
+                  {% elif pedido.pago_confirmado == 'N' %}
+                    <strong>Pago confirmado:</strong> ⏳ Pendiente
+                  {% elif pedido.pago_confirmado == 'R' %}
+                    <strong>Pago confirmado:</strong> ❌ Rechazado
+                  {% else %}
+                    <strong>Pago confirmado:</strong> ❓ Sin información
+                  {% endif %}
+                </p>
+              </div>
+              <div class="text-end mt-3">
+                <a href="{% url 'descargar_boleta' pedido.id_pedido %}" target="_blank" class="btn btn-outline-primary btn-sm">
+                  <i class="bi bi-file-earmark-pdf"></i> Descargar Boleta
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="alert alert-info text-center" role="alert">
+    No tienes pedidos aún.
+  </div>
+{% endif %}
+{% endblock %}

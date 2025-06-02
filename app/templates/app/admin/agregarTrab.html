@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Trabajador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papbFjUQzOCj2+lYXULprKOXl3KuVQdc9YPjO3O0b6GJC3KzD1mKjF9iGzlxPeVxkVshUxI05P9P+hclFfajBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  <style>
+    .icono-ojo {
+      position: absolute;
+      top: 38px; /* Ajusta según tu preferencia */
+      right: 12px;
+      background: none;
+      border: none;
+      z-index: 10;
+    }
+    .form-control.pe-5 {
+      padding-right: 2.5rem;
+    }
+  </style>
+</head>
+<body class="bg-light" style="background-image: url(/static/app/img/herramientas.webp); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+
+  <div class="container py-5">
+{% if messages %}
+    {% for message in messages %}
+      {% if message.tags == "success" %}
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-success">
+              <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">✔ Éxito</h5>
+                <button type="button" class="btn-close" onclick="this.closest('.modal').remove()" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <p>{{ message }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          setTimeout(() => {
+            document.querySelectorAll('.modal').forEach(m => m.remove());
+          }, 2000);
+        </script>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+    <form class="bg-white p-4 shadow rounded" style="max-width: 500px; margin: auto;" method="POST" onsubmit="return validarFormulario()">
+      {% csrf_token %}
+      <h2 class="mb-4 text-center" style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; color: red;">Registro de Trabajador</h2>
+
+      <div class="mb-3">
+        <label for="rut" class="form-label">RUT</label>
+        <input type="text" class="form-control" id="rut" name="rut" placeholder="12345678-9" required>
+        <div class="text-danger" id="error-rut" style="display: none;">El RUT debe contener un guion. Ej: 12345678-9</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="nombre" name="nombre" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="apellido" class="form-label">Apellido</label>
+        <input type="text" class="form-control" id="apellido" name="apellido" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="telefono" class="form-label">Teléfono</label>
+        <input type="tel" class="form-control" id="telefono" name="telefono" pattern="[0-9]{9}" placeholder="912345678" required>
+        <div class="text-danger" id="error-telefono" style="display: none;">El teléfono debe comenzar con 9 y tener 9 dígitos.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="comuna" class="form-label">Comuna</label>
+        <select class="form-select" id="comuna" name="id_comuna" required>
+          <option value="">Seleccione una comuna</option>
+            {% for comuna in comunas %}
+            <option value="{{ comuna.id_comuna }}">{{ comuna.descripcion }}</option>
+            {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3 position-relative">
+        <label for="clave" class="form-label">Contraseña</label>
+        <input type="password" class="form-control pe-5" id="clave" name="clave" required>
+        <button type="button" class="icono-ojo" onclick="togglePasswordVisibility('clave', this)">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+      </div>
+
+      <div class="mb-3 position-relative">
+        <label for="confirmar_clave" class="form-label">Confirmar Contraseña</label>
+        <input type="password" class="form-control pe-5" id="confirmar_clave" name="confirmar_clave" required>
+        <button type="button" class="icono-ojo" onclick="togglePasswordVisibility('confirmar_clave', this)">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+        <div id="error-clave" class="text-danger mt-1" style="display:none;">Las contraseñas no coinciden.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="rol" class="form-label">Tipo de Usuario</label>
+        <select class="form-select" id="rol" name="rol" required>
+          <option value="" disabled selected>Seleccione un rol</option>
+          <option value="vendedor">Vendedor</option>
+          <option value="bodeguero">Bodeguero</option>
+          <option value="contador">Contador</option>
+        </select>
+      </div>
+
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary">Crear Trabajador</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector('i');
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = "password";
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function validarRutChileno(rutCompleto) {
+      rutCompleto = rutCompleto.replace(/\./g, '').toUpperCase(); 
+      if (!/^\d{7,8}-[0-9K]$/.test(rutCompleto)) return false;
+
+      const [cuerpo, dv] = rutCompleto.split('-');
+      let suma = 0;
+      let multiplo = 2;
+
+      for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += parseInt(cuerpo.charAt(i)) * multiplo;
+        multiplo = multiplo === 7 ? 2 : multiplo + 1;
+      }
+
+      const resultado = 11 - (suma % 11);
+      const dvEsperado = resultado === 11 ? '0' : resultado === 10 ? 'K' : resultado.toString();
+
+      return dvEsperado === dv;
+    }
+
+    function mostrarError(idCampo, idError, mensaje) {
+      const campo = document.getElementById(idCampo);
+      const error = document.getElementById(idError);
+
+      error.textContent = mensaje;
+      error.style.display = 'block';
+
+      campo.classList.add('animate__animated', 'animate__shakeX');
+      setTimeout(() => campo.classList.remove('animate__animated', 'animate__shakeX'), 1000);
+    }
+
+    function ocultarError(idError) {
+      document.getElementById(idError).style.display = 'none';
+    }
+
+    function validarFormulario() {
+      const rut = document.getElementById('rut').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const clave = document.getElementById('clave').value;
+      const confirmar = document.getElementById('confirmar_clave').value;
+
+      let valido = true;
+
+      if (!validarRutChileno(rut)) {
+        mostrarError('rut', 'error-rut', '⚠️ El RUT ingresado no es válido');
+        valido = false;
+      } else {
+        ocultarError('error-rut');
+      }
+
+      if (!/^9\d{8}$/.test(telefono)) {
+        mostrarError('telefono', 'error-telefono', '⚠️ El teléfono debe tener 9 dígitos y comenzar con 9');
+        valido = false;
+      } else {
+        ocultarError('error-telefono');
+      }
+
+      if (clave !== confirmar || clave === "") {
+        mostrarError('confirmar_clave', 'error-clave', '⚠️ Las contraseñas no coinciden o están vacías');
+        valido = false;
+      } else {
+        ocultarError('error-clave');
+      }
+
+      return valido;
+    }
+</script>
+
+</body>
+</html>

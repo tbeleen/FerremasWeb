@@ -1,0 +1,139 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg p-4">
+    <div class="row g-4 align-items-center">
+      <!-- Imagen del producto -->
+      <div class="col-md-5 text-center">
+        <img src="{{ producto.imagen_url }}" class="img-fluid rounded" alt="Imagen del producto" style="max-height: 300px; object-fit: contain;">
+      </div>
+
+      <!-- Detalles del producto -->
+      <div class="col-md-7">
+        <div class="card-body">
+          <h2 class="card-title fw-bold">{{ producto.nombre_prod }}</h2>
+          <h4 class="text-success fw-semibold">${{ producto.precio_prod }}</h4>
+
+          {% if request.session.usuario_rol == 'cliente' %}
+      <!-- Formulario para agregar al carrito -->
+      <form method="POST" action="{% url 'agregar_al_carrito' producto.id_producto %}" class="mt-4">
+        {% csrf_token %}
+        <div class="row mb-3 align-items-center">
+          <div class="col-auto">
+            <label for="cantidad" class="form-label mb-1">Cantidad:</label>
+            <input type="number" name="cantidad" id="cantidad" value="1" min="1" max="{{ producto.stock }}" class="form-control text-center" style="width: 80px;">
+          </div>
+          <div class="col-auto">
+            <label class="form-label mb-1">Stock disponible:</label>
+            <div class="form-control-plaintext fw-bold text-muted">{{ producto.stock }}</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">
+          <i class="bi bi-cart-plus-fill me-1"></i> Agregar al carrito
+        </button>
+      </form>
+    {% else %}
+      <div class="alert alert-warning mt-4">
+        Debes <a href="{% url 'login' %}">iniciar sesión</a> para agregar productos al carrito.
+      </div>
+    {% endif %}
+
+          <a href="javascript:history.back()" class="btn btn-outline-secondary mt-3">← Volver</a>
+        </div>
+      </div>
+    </div>
+
+   <!-- Acordeón de descripción -->
+  <div class="accordion mt-4" id="accordionDescripcion">
+    <div class="accordion-item border-0 shadow-sm">
+      <h2 class="accordion-header" id="headingDesc">
+        <button class="accordion-button collapsed bg-light fw-semibold"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseDesc"
+                aria-expanded="false"
+                aria-controls="collapseDesc">
+          <i class="bi bi-info-circle me-2"></i> Descripción del producto
+        </button>
+      </h2>
+      <div id="collapseDesc"
+          class="accordion-collapse collapse"
+          aria-labelledby="headingDesc">
+        <div class="accordion-body">
+          {{ producto.descripcion }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acordeón de modelo -->
+  <div class="accordion mt-3" id="accordionModelo">
+    <div class="accordion-item border-0 shadow-sm">
+      <h2 class="accordion-header" id="headingModelo">
+        <button class="accordion-button collapsed bg-light fw-semibold"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseModelo"
+                aria-expanded="false"
+                aria-controls="collapseModelo">
+          <i class="bi bi-cpu me-2"></i> Modelo del producto
+        </button>
+      </h2>
+      <div id="collapseModelo"
+          class="accordion-collapse collapse"
+          aria-labelledby="headingModelo">
+        <div class="accordion-body">
+          {{ producto.modelo_prod }}
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+<h3 class="mt-5 mb-3">También te podría interesar</h3>
+
+<div id="carouselProductos" class="carousel slide position-relative" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    {% for p in otros_productos %}
+      {% if forloop.counter0|divisibleby:3 %}
+        <div class="carousel-item {% if forloop.counter0 == 0 %}active{% endif %}">
+          <div class="row justify-content-center">
+      {% endif %}
+
+            <div class="col-md-4 mb-3">
+              <div class="card h-100 shadow-sm" style="min-height: 240px; font-size: 0.9rem; padding: 0.5rem;">
+                <img src="{{ p.imagen_url }}" class="card-img-top mx-auto d-block" alt="{{ p.nombre_prod }}"
+                  style="height: 100px; object-fit: contain; width: auto;">
+                <div class="card-body text-center p-2">
+                  <h6 class="card-title mb-1 text-truncate" style="font-size: 0.95rem;">{{ p.nombre_prod }}</h6>
+                  <p class="text-success fw-bold mb-2" style="font-size: 1rem;">${{ p.precio_prod }}</p>
+                  <a href="{% url 'detalle_producto' p.id_producto %}" class="btn btn-outline-primary btn-sm">Ver</a>
+                </div>
+              </div>
+            </div>
+
+      {% if forloop.counter|divisibleby:3 or forloop.last %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Botones de navegación -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselProductos" data-bs-slide="prev"
+    style="width: 5%;">
+    <span class="carousel-control-prev-icon bg-light rounded-circle" aria-hidden="true"></span>
+    <span class="visually-hidden">Anterior</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselProductos" data-bs-slide="next"
+    style="width: 5%;">
+    <span class="carousel-control-next-icon bg-light rounded-circle" aria-hidden="true"></span>
+    <span class="visually-hidden">Siguiente</span>
+  </button>
+</div>
+
+</div>
+
+{% endblock %}

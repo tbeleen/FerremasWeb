@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Cliente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/static/app/img/herramientas.webp');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+    
+    .register-card {
+      max-width: 500px;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform: translateY(0);
+      transition: all 0.5s ease;
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
+    .register-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+    
+    .register-header {
+      background-color: #dc3545;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .register-header h2 {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 2;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .register-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+      animation: pulse 8s infinite linear;
+      z-index: 1;
+    }
+    
+    @keyframes pulse {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .register-body {
+      padding: 2rem;
+    }
+    
+    .form-control {
+      border-radius: 8px;
+      padding: 12px 15px;
+      border: 1px solid #ced4da;
+      transition: all 0.3s ease;
+      box-shadow: none;
+    }
+    
+    .form-control:focus {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+      transform: translateY(-2px);
+    }
+    
+    .input-group-text {
+      background-color: white;
+      border-left: 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group-text:hover {
+      color: #dc3545;
+    }
+    
+    .error-text {
+      color: #dc3545;
+      font-size: 0.85em;
+      margin-top: 5px;
+      animation: shake 0.5s ease;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .btn-register {
+      background-color: #dc3545;
+      border: none;
+      padding: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: all 0.4s ease;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-register:hover {
+      background-color: #bb2d3b;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+    
+    .btn-register::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+    }
+    
+    .btn-register:hover::after {
+      animation: shine 1.5s ease;
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; opacity: 0; }
+      50% { opacity: 1; }
+      100% { left: 100%; opacity: 0; }
+    }
+    
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+      transition: all 0.3s ease;
+    }
+    
+    .form-floating>label {
+      padding: 0.8rem 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group:focus-within {
+      transform: translateY(-2px);
+    }
+    
+    .login-link {
+      color: #6c757d;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    
+    .login-link:hover {
+      color: #dc3545;
+      text-decoration: underline;
+    }
+    
+    /* Animación para los campos del formulario */
+    .form-group {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Retrasos para cada campo */
+    .form-group:nth-child(1) { animation-delay: 0.1s; }
+    .form-group:nth-child(2) { animation-delay: 0.2s; }
+    .form-group:nth-child(3) { animation-delay: 0.3s; }
+    .form-group:nth-child(4) { animation-delay: 0.4s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+    .form-group:nth-child(6) { animation-delay: 0.6s; }
+    .form-group:nth-child(7) { animation-delay: 0.7s; }
+    .form-group:nth-child(8) { animation-delay: 0.8s; }
+    .form-group:nth-child(9) { animation-delay: 0.9s; }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="register-card mx-auto animate__animated animate__fadeInUp">
+      <div class="register-header">
+        <h2><i class="fas fa-user-plus me-2"></i>Registro de Cliente</h2>
+      </div>
+      
+      <div class="register-body">
+        <form id="registroForm" method="post" onsubmit="return validarFormulario()">
+          {% csrf_token %}
+          
+          {% if messages %}
+            <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                {% for message in messages %}
+                  const tipo = '{{ message.tags }}';
+                  const esExito = tipo.includes('success');
+                  
+                  Swal.fire({
+                    icon: esExito ? 'success' : 'error',
+                    title: esExito ? '¡Registro Exitoso!' : 'Error',
+                    html: '{{ message|escapejs }}',
+                    showConfirmButton: true,
+                    timer: esExito ? 5000 : null,
+                    timerProgressBar: esExito,
+                    didOpen: () => {
+                      if(esExito) Swal.showLoading();
+                    }
+                  }).then(() => {
+                    {% if message.tags == 'success' %}
+                      window.location.href = "{% url 'login' %}";
+                    {% endif %}
+                  });
+                {% endfor %}
+              });
+            </script>
+          {% endif %}
+
+          <div class="form-group">
+            <label for="rut" class="form-label">RUT</label>
+            <input type="text" class="form-control" id="rut" name="rut" placeholder="12345678-9" required>
+            <div id="error-rut" class="error-text" style="display: none;">⚠️ El RUT ingresado no es válido</div>
+          </div>
+
+          <div class="form-group">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre" required>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Apellido" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="cliente@correo.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="912345678" required>
+            </div>
+            <div id="error-telefono" class="error-text" style="display: none;">⚠️ El teléfono debe comenzar con 9 y tener 9 dígitos</div>
+          </div>
+
+          <div class="form-group">
+            <label for="comuna" class="form-label">Comuna</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+              <select class="form-select" id="comuna" name="id_comuna" required>
+                <option value="">Seleccione una comuna</option>
+                {% for comuna in comunas %}
+                <option value="{{ comuna.id_comuna }}">{{ comuna.descripcion }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" id="clave" name="clave" placeholder="Contraseña" required>
+              <span class="input-group-text" onclick="togglePasswordVisibility('clave', this)">
+                <i class="fa fa-eye"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirmar Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input type="password" class="form-control" id="confirmar_clave" name="confirmar_clave" placeholder="Repite la contraseña" required>
+              <span class="input-group-text" onclick="togglePasswordVisibility('confirmar_clave', this)">
+                <i class="fa fa-eye"></i>
+              </span>
+            </div>
+            <div id="error-clave" class="error-text" style="display: none;">⚠️ Las contraseñas no coinciden</div>
+          </div>
+
+          <div class="form-group mt-4">
+            <button type="submit" class="btn btn-register btn-block w-100">
+              <i class="fas fa-user-plus me-2"></i>Registrarse
+            </button>
+          </div>
+
+          <div class="text-center pt-3 animate__animated animate__fadeIn">
+            <a href="{% url 'login' %}" class="login-link">
+              <i class="fas fa-sign-in-alt me-1"></i>¿Ya tienes cuenta? Inicia sesión
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('rut').addEventListener('input', function () {
+    let value = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (value.length > 1 && value.length <= 9) {
+      value = value.slice(0, -1) + '-' + value.slice(-1);
+    }
+    this.value = value;
+  });
+  function validarRutExistente(rutCompleto) {
+    if (!rutCompleto || typeof rutCompleto !== 'string') return false;
+
+    rutCompleto = rutCompleto.replace(/\./g, '').replace('-', '').toUpperCase();
+
+    if (!/^\d{7,8}[0-9K]$/.test(rutCompleto)) return false;
+
+    const rut = rutCompleto.slice(0, -1);
+    const dv = rutCompleto.slice(-1);
+
+    let suma = 0, multiplo = 2;
+    for (let i = rut.length - 1; i >= 0; i--) {
+      suma += parseInt(rut.charAt(i)) * multiplo;
+      multiplo = multiplo === 7 ? 2 : multiplo + 1;
+    }
+
+    const resultado = 11 - (suma % 11);
+    const dvEsperado = resultado === 11 ? '0' : resultado === 10 ? 'K' : resultado.toString();
+
+    return dv === dvEsperado;
+  }
+
+  function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    input.type = input.type === "password" ? "text" : "password";
+    icon.classList.toggle('fa-eye');
+    icon.classList.toggle('fa-eye-slash');
+    btn.style.transform = 'scale(1.2)';
+    setTimeout(() => btn.style.transform = 'scale(1)', 200);
+  }
+
+  function validarFormulario() {
+    const rut = document.getElementById('rut').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const clave = document.getElementById('clave').value.trim();
+    const confirmarClave = document.getElementById('confirmar_clave').value.trim();
+
+    const errorRut = document.getElementById('error-rut');
+    const errorTelefono = document.getElementById('error-telefono');
+    const errorClave = document.getElementById('error-clave');
+    const btnSubmit = document.querySelector('button[type="submit"]');
+
+    errorRut.style.display = 'none';
+    errorTelefono.style.display = 'none';
+    errorClave.style.display = 'none';
+
+    let isValid = true;
+
+    if (!validarRutExistente(rut)) {
+      errorRut.textContent = '⚠️ El RUT ingresado no es válido';
+      errorRut.style.display = 'block';
+      shakeElement(document.getElementById('rut'));
+      document.getElementById('rut').focus();
+      isValid = false;
+    }
+
+    if (!/^9\d{8}$/.test(telefono)) {
+      errorTelefono.textContent = '⚠️ El teléfono debe tener 9 dígitos y comenzar con 9';
+      errorTelefono.style.display = 'block';
+      shakeElement(document.getElementById('telefono'));
+      if (isValid) document.getElementById('telefono').focus();
+      isValid = false;
+    }
+
+    if (clave !== confirmarClave || clave.length < 8) {
+      errorClave.textContent = '⚠️ Las contraseñas no coinciden o son muy cortas';
+      errorClave.style.display = 'block';
+      shakeElement(document.getElementById('confirmar_clave'));
+      if (isValid) document.getElementById('confirmar_clave').focus();
+      isValid = false;
+    }
+
+    if (!isValid) {
+      btnSubmit.classList.add('animate__animated', 'animate__shakeX');
+      setTimeout(() => btnSubmit.classList.remove('animate__animated', 'animate__shakeX'), 1000);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en el formulario',
+        text: 'Por favor corrige los errores indicados',
+        showClass: { popup: 'animate__animated animate__shakeX' }
+      });
+
+      return false;
+    }
+
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registrando...';
+    btnSubmit.disabled = true;
+    return true;
+  }
+
+  function shakeElement(element) {
+    element.classList.add('animate__animated', 'animate__shakeX');
+    setTimeout(() => element.classList.remove('animate__animated', 'animate__shakeX'), 1000);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputs = document.querySelectorAll('.form-control, .form-select');
+    inputs.forEach(input => {
+      input.addEventListener('focus', () => {
+        input.parentElement.parentElement.style.transform = 'translateY(-3px)';
+        input.parentElement.parentElement.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+      });
+      input.addEventListener('blur', () => {
+        input.parentElement.parentElement.style.transform = '';
+        input.parentElement.parentElement.style.boxShadow = '';
+      });
+    });
+  });
+</script>
+
+
+</body>
+</html>

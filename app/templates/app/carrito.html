@@ -1,0 +1,92 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-3">
+     <a href="{% url 'index' %}" class="btn btn-dark rounded-pill px-4 py-2 shadow-sm d-inline-flex align-items-center">
+      <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+    </a>
+  </div>
+  <h1 class="mb-4">
+    Tu Carrito <i class="bi bi-cart3"></i>
+  </h1>
+
+  {% if productos %}
+  <div class="row">
+    <div class="col-md-8">
+      <ul class="list-group">
+    {% for p in productos %}
+    <li class="list-group-item d-flex align-items-start gap-3">
+    <img src="{{ p.imagen_url }}" alt="{{ p.nombre_prod }}" class="rounded shadow-sm" style="width: 100px; height: 100px; object-fit: contain;">
+    <div class="flex-grow-1">
+        <h5>{{ p.nombre_prod }}</h5>
+        <p class="mb-1">Cantidad: {{ p.cantidad }}</p>
+        <p class="mb-1">Precio unitario: ${{ p.precio_prod }}</p>
+        <p class="mb-1"><strong>Subtotal: ${{ p.subtotal }}</strong></p>
+
+        <div class="d-flex gap-2 mt-2">
+          <form method="post" action="{% url 'aumentar_cantidad' p.id_producto %}">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-outline-success" title="Aumentar cantidad">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+          </form>
+          <form method="post" action="{% url 'reducir_cantidad' p.id_producto %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-warning" title="Reducir cantidad">
+              <i class="bi bi-dash-circle"></i>
+              </button>
+          </form>
+          <form method="post" action="{% url 'eliminar_del_carrito' p.id_producto %}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger" title="Eliminar producto">
+              <i class="bi bi-trash"></i>
+              </button>
+          </form>
+        </div>
+    </div>
+    </li>
+    {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4 class="mb-3">Resumen del Carrito</h4>
+        <p><strong>Total de productos:</strong> {{ cantidad_total_productos }}</p>
+        <p><strong>Total a pagar (CLP):</strong> ${{ total }}</p>
+
+        {% if total_usd %}
+          <p><strong>Total en USD:</strong> ${{ total_usd|floatformat:"2" }}</p>
+        {% else %}
+          <div class="alert alert-warning p-2 mt-2">
+            No se pudo obtener el valor del dólar.
+          </div>
+        {% endif %}
+
+        <div class="d-grid mt-4">
+          <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg">
+            Proceder al pago <i class="bi bi-credit-card"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-info">Tu carrito está vacío.</div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+
+
+{% endblock %}
+
+

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Administrador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .form-container {
+      max-width: 500px;
+      margin: auto;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-light" style="background-image: url('/static/app/img/herramientas.webp'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; min-height: 100vh;">
+
+  <div class="container py-5">
+    <div class="form-container p-4 my-5">
+      <form method="post">
+        {% csrf_token %}
+        <h2 class="mb-4 text-center text-primary">Crear Administrador</h2>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content {% if message.tags == 'error' %}bg-danger{% else %}bg-success{% endif %} text-white">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">
+                      {% if message.tags == 'error' %}Error{% else %}Éxito{% endif %}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    {{ message }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="rut" class="form-label">RUT</label>
+          <input type="text" class="form-control" id="rut" name="rut" placeholder="Ej: 12345678-9" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="nombre" class="form-label">Nombre Completo</label>
+          <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre y Apellido" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo Electrónico</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="correo@ejemplo.com" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="clave" class="form-label">Contraseña Temporal</label>
+          <input type="password" class="form-control" id="clave" name="clave" placeholder="Mínimo 8 caracteres" required>
+          <div class="form-text">La contraseña será temporal y el usuario deberá cambiarla al primer ingreso.</div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-lg">Crear Administrador</button>
+          <a href="{% url 'index' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  function validarRutChileno(rutCompleto) {
+    rutCompleto = rutCompleto.replace(/\./g, '').replace('-', '').toUpperCase();
+
+    if (!/^\d{7,8}[0-9K]$/.test(rutCompleto)) return false;
+
+    const rut = rutCompleto.slice(0, -1);
+    const dv = rutCompleto.slice(-1);
+
+    let suma = 0, multiplo = 2;
+
+    for (let i = rut.length - 1; i >= 0; i--) {
+      suma += parseInt(rut[i]) * multiplo;
+      multiplo = multiplo === 7 ? 2 : multiplo + 1;
+    }
+
+    const resultado = 11 - (suma % 11);
+    const dvEsperado = resultado === 11 ? '0' : resultado === 10 ? 'K' : resultado.toString();
+
+    return dv === dvEsperado;
+  }
+
+  function shakeElement(element) {
+    element.classList.add('animate__animated', 'animate__shakeX');
+    setTimeout(() => {
+      element.classList.remove('animate__animated', 'animate__shakeX');
+    }, 1000);
+  }
+
+  document.getElementById('rut').addEventListener('input', function () {
+    let value = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (value.length > 1 && value.length <= 9) {
+      value = value.slice(0, -1) + '-' + value.slice(-1);
+    }
+    this.value = value;
+  });
+
+  document.querySelector('form').addEventListener('submit', function (e) {
+    const rutInput = document.getElementById('rut');
+    const claveInput = document.getElementById('clave');
+
+    const rut = rutInput.value.trim();
+    const clave = claveInput.value.trim();
+
+    let valid = true;
+    let mensaje = '';
+
+    if (!validarRutChileno(rut)) {
+      mensaje += '⚠️ Ingrese un RUT chileno válido (ej: 12345678-5).\n';
+      shakeElement(rutInput);
+      rutInput.focus();
+      valid = false;
+    }
+
+    if (clave.length < 8) {
+      mensaje += '⚠️ La contraseña debe tener al menos 8 caracteres.\n';
+      shakeElement(claveInput);
+      if (valid) claveInput.focus();
+      valid = false;
+    }
+
+    if (!valid) {
+      e.preventDefault();
+      alert(mensaje);
+    }
+  });
+  </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  {% if messages %}
+  <script>
+    var notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
+    notificationModal.show();
+  </script>
+  {% endif %}
+</body>
+</html>

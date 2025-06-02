@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Vista Vendedor | Productos y Pedidos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-color: #4e73df;
+      --secondary-color: #f8f9fc;
+      --accent-color: #2e59d9;
+    }
+
+    body {
+      background-color: var(--secondary-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar {
+      background-color: white;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+
+    .card {
+      border: none;
+      border-radius: 0.35rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      border-bottom: none;
+      padding: 1rem 1.35rem;
+      border-radius: 0.35rem 0.35rem 0 0 !important;
+    }
+
+    .placeholder-img {
+      width: 40px;
+      height: 40px;
+      background-color: #e9ecef;
+      border: 1px solid #dee2e6;
+      display: inline-block;
+      border-radius: 5px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table th {
+      border-top: none;
+      font-weight: 600;
+      color: #5a5c69;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pedido-card {
+      transition: transform 0.2s;
+    }
+
+    .pedido-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .search-container {
+      max-width: 500px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg px-4 py-3">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% url 'vendedor' %}">
+        <img src="../../static/app/img/logo2.png" alt="Logo" width="160">
+      </a>
+
+      <!-- Buscador centrado -->
+      <div class="d-flex justify-content-center flex-grow-1">
+        <div class="search-container">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input id="input-busqueda" class="form-control" type="search" placeholder="Buscar por RUT, Nombre o Rol" aria-label="Buscar">
+          </div>
+        </div>
+      </div>
+
+      <!-- User info -->
+      <div class="user-info">
+        <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+          <i class="bi bi-person-fill text-primary"></i>
+        </div>
+        <div>
+          <span class="d-block fw-bold">{{ usuario.nombre }}</span>
+          <a href="{% url 'logout' %}" class="text-decoration-none small">Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0 fw-bold text-gray-800">Gestión de Productos y Pedidos</h2>
+    </div>
+
+    <!-- Sección: Productos en Bodega -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-box-seam me-2"></i>Productos Disponibles en Bodega</span>
+        <span class="badge bg-primary rounded-pill">{{ productos|length }} productos</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 60px;"></th>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="text-end">Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for producto in productos %}
+                <tr>
+                  <td>
+                    {% if producto.imagen_url %}
+                      <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre_prod }}" class="img-thumbnail" width="40" height="40">
+                    {% else %}
+                      <div class="placeholder-img d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    {% endif %}
+                  </td>
+                  <td class="fw-semibold">{{ producto.nombre_prod }}</td>
+                  <td><span class="badge bg-secondary bg-opacity-10 text-secondary">{{ producto.nombre_subcat }}</span></td>
+                  <td class="text-end">
+                    {% if producto.stock == 0 %}
+                      <span class="badge bg-danger bg-opacity-10 text-danger">Sin stock</span>
+                    {% else %}
+                      <span class="badge bg-success bg-opacity-10 text-success">{{ producto.stock }} unidades</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección: Pedidos para entregar -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-truck me-2"></i>Pedidos Listos para Entregar</span>
+        <span class="badge bg-primary rounded-pill">{{ pedidos|length }} pedidos</span>
+      </div>
+      <div class="card-body">
+        {% if pedidos %}
+          <div class="row">
+            {% for pedido in pedidos %}
+              <div class="col-md-6 mb-3">
+                <div class="card pedido-card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h5 class="card-title mb-0 text-primary">Pedido #{{ pedido.id_pedido }}</h5>
+                      <span class="badge {% if pedido.id_tipo_entrega == 2 %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                        {{ pedido.tipo_entrega }}
+                      </span>
+                    </div>
+                    <hr class="mt-1 mb-2">
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between">
+                        <span class="text-muted">Cliente:</span>
+                        <span class="fw-semibold">{{ pedido.rut }}</span>
+                      </div>
+                      <div class="d-flex justify-content-between">
+                        <span class="text-muted">Fecha:</span>
+                        <span>{{ pedido.fecha }}</span>
+                      </div>
+                      <div class="d-flex justify-content-between">
+                        <span class="text-muted">Total:</span>
+                        <span class="fw-bold">${{ pedido.total }}</span>
+                      </div>
+                    </div>
+
+                    {% if pedido.id_tipo_entrega %}
+                      <form method="POST" action="{% url 'actualizar_estado_pedido_vendedor' pedido.id_pedido pedido.id_tipo_entrega %}" class="mt-auto">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100">
+                          <i class="bi bi-check-circle me-1"></i>
+                          {% if pedido.id_tipo_entrega == 2 %}
+                            Marcar como Despachado
+                          {% else %}
+                            Marcar como Entregado
+                          {% endif %}
+                        </button>
+                      </form>
+                    {% else %}
+                      <div class="alert alert-warning mt-2">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Tipo de entrega no definido
+                      </div>
+                    {% endif %}
+
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-4">
+            <i class="bi bi-cart-x text-muted" style="font-size: 3rem;"></i>
+            <h5 class="mt-3 text-muted">No hay pedidos listos para entregar</h5>
+            <p class="text-muted">Cuando tengas pedidos listos, aparecerán aquí</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

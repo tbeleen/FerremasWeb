@@ -1,0 +1,574 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+{% endblock %}
+<div id="mensaje-flash" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1100; display: none;">
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">¡Éxito!</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body bg-light">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <span id="mensaje-texto"></span>
+        </div>
+    </div>
+</div>
+
+<section id="hero-carousel" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    {% for i in "123" %}
+    <button type="button" data-bs-target="#hero-carousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+            class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+    {% endfor %}
+  </div>
+
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="{% static 'app/img/equiposSeguridad.jpg' %}" class="d-block w-100" alt="Equipos de seguridad">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+        <div class="container text-center">
+          <h2 class="display-4 fw-bold mb-3">Equipos de Seguridad</h2>
+          <p class="lead mb-0">Protección de calidad para cada trabajo</p>
+          <a href="{% url 'equiposSeguridad' %}" class="btn btn-primary btn-lg mt-3">Ver productos</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="carousel-item">
+      <img src="{% static 'app/img/herramientas.webp' %}" class="d-block w-100" alt="Herramientas Básicas">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+        <div class="container text-center">
+          <h2 class="display-4 fw-bold mb-3">Herramientas Profesionales</h2>
+          <p class="lead mb-0">Todo lo que necesitas para tus proyectos</p>
+          <a href="{% url 'herramientasElec' %}" class="btn btn-primary btn-lg mt-3">Explorar herramientas</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="carousel-item">
+      <img src="{% static 'app/img/materialesConstru.jpg' %}" class="d-block w-100" alt="Materiales de Construcción">
+      <div class="carousel-overlay"></div>
+      <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+        <div class="container text-center">
+          <h2 class="display-4 fw-bold mb-3">Materiales de Calidad</h2>
+          <p class="lead mb-0">Los mejores materiales para construcción</p>
+          <a href="{% url 'materialesBasic' %}" class="btn btn-primary btn-lg mt-3">Ver materiales</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="carousel-control-prev" type="button" data-bs-target="#hero-carousel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Anterior</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#hero-carousel" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Siguiente</span>
+  </button>
+</section>
+
+<section class="text-center py-5 bg-light">
+  <div class="container">
+    <h2 class="display-5 fw-bold mb-5">Nuestras Categorías</h2>
+    <div class="row justify-content-center">
+      
+      <div class="col-6 col-sm-4 col-md-2 mb-4">
+        <div class="category-card hover-effect">
+          <div class="mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden;">
+            <img src="{% static 'app/img/categoria1.png' %}" alt="Herramientas eléctricas" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'herramientasManu' %}" class="text-decoration-none text-dark fw-medium">Herramientas Manuales</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-sm-4 col-md-2 mb-4">
+        <div class="category-card hover-effect">
+          <div class="mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden;">
+            <img src="{% static 'app/img/categoria2.jpg' %}" alt="Aseo" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'herramientasElec' %}" class="text-decoration-none text-dark fw-medium">Herramientas Eléctricas</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-sm-4 col-md-2 mb-4">
+        <div class="category-card hover-effect">
+          <div class="mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden;">
+            <img src="{% static 'app/img/categoria3.jpeg' %}" alt="Tornillos" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'tornillo_y_anclaje' %}" class="text-decoration-none text-dark fw-medium">Tornillos</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-sm-4 col-md-2 mb-4">
+        <div class="category-card hover-effect">
+          <div class="mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden;">
+            <img src="{% static 'app/img/categoria4.webp' %}" alt="Adhesivos" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'fijaciones_y_adhesivos' %}" class="text-decoration-none text-dark fw-medium">Adhesivos</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-6 col-sm-4 col-md-2 mb-4">
+        <div class="category-card hover-effect">
+          <div class="mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden;">
+            <img src="{% static 'app/img/categoria5.jpeg' %}" alt="Equipos de medición" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;">
+          </div>
+          <div class="mt-3">
+            <a href="{% url 'equiposMedicion' %}" class="text-decoration-none text-dark fw-medium">Equipos de medición</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold">Productos Destacados</h2>
+      <p class="lead text-muted">Los artículos más populares de nuestra ferretería</p>
+    </div>
+
+    <div class="row g-4" id="grid-productos" style="background-color: white;"> 
+  {% for producto in productos %}
+  <div class="col-md-6 col-lg-4 col-xl-3">
+    <a href="{% url 'detalle_producto' producto.id_producto %}" class="text-decoration-none text-dark">
+      <div class="card h-100 product-card shadow-sm">
+        <div class="product-img-container p-2 bg-white rounded d-flex align-items-center justify-content-center" style="height: 180px;">
+          <img src="{{ producto.imagen_url }}" class="product-img" alt="{{ producto.nombre_prod }}" style="max-height: 150px; max-width: 100%; object-fit: contain;">
+        </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ producto.nombre_prod }}</h5>
+          <p class="card-text text-primary fw-bold">${{ producto.precio_prod }}</p>
+          <span class="badge bg-success align-self-start mb-2">Stock: {{ producto.stock }}</span>
+          <div class="mt-auto d-flex flex-column gap-2">
+            {% if request.session.usuario_rol == 'cliente' %}
+              <form action="{% url 'agregar_al_carrito' producto.id_producto %}" method="post" class="add-to-cart-form">
+                {% csrf_token %}
+                <input type="hidden" name="cantidad" value="1">
+                <button type="submit" class="btn btn-success w-100">
+                  <i class="bi bi-cart-plus"></i> Agregar al carrito
+                </button>
+              </form>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-success w-100">
+                <i class="bi bi-cart-plus"></i> Agregar al carrito
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+    <div class="d-flex justify-content-center mt-4">
+      <nav aria-label="Paginación de productos">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+          </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ num }}</span>
+          </li>
+          {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Siguiente</span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="text-center my-4">
+        <img src="{% static 'app/img/logo_grande.png' %}"
+            alt="Sobre Ferremas"
+            class="img-fluid rounded-4 shadow-lg border border-3 border-withe"
+            style="max-width: 100%; width: 400px; transition: transform 0.3s;"
+            onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'">
+      </div>
+
+      </div>
+      <div class="col-lg-6">
+        <h2 class="display-5 fw-bold mb-4">Sobre Nosotros</h2>
+        <p class="lead">Más de 40 años sirviendo a la industria de la construcción en Chile</p>
+        <p>FERREMAS es una distribuidora líder en el sector ferretero establecida en Santiago desde los años 80. Con 7 sucursales en todo el país y planes de expansión, hemos crecido junto al desarrollo de la industria de la construcción chilena.</p>
+        <p>Ofrecemos una amplia gama de productos de calidad, desde herramientas manuales y eléctricas hasta materiales de construcción y artículos de seguridad, trabajando con marcas reconocidas como Bosch, Makita, Stanley y Sika.</p>
+        <p>Nuestra evolución de tienda física a modelo híbrido (físico + online) nos permite ofrecer mayor comodidad y acceso a nuestros clientes, manteniendo siempre nuestro compromiso con la calidad y servicio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center display-5 fw-bold mb-5">Nuestras Marcas</h2>
+    <div class="row justify-content-center align-items-center">
+      {% for marca in marcas %}
+      <div class="col-6 col-sm-4 col-md-2 mb-4 text-center">
+        <a href="{% url 'productos_por_marca' marca.id_marca %}" class="text-decoration-none text-dark">
+          <div class="p-3 border rounded shadow-sm bg-white h-100 d-flex flex-column align-items-center justify-content-center hover-effect">
+            <img src="{{ marca.img_marca }}" alt="{{ marca.nombre }}" class="img-fluid mb-2" style="max-height: 80px; object-fit: contain;">
+            <p class="mb-0 fw-medium">{{ marca.nombre }}</p>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% block javascript %}
+<script>
+    const mensaje = sessionStorage.getItem("mensaje_pago");
+    if (mensaje) {
+        const notificacion = document.getElementById("mensaje-flash");
+        const mensajeTexto = document.getElementById("mensaje-texto");
+        
+        mensajeTexto.textContent = mensaje;
+        notificacion.style.display = "block";
+        
+        setTimeout(() => {
+            notificacion.style.display = "none";
+        }, 5000);
+        
+        sessionStorage.removeItem("mensaje_pago");
+    }
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const inputBuscador = document.getElementById("buscador-productos");
+    const gridProductos = document.getElementById("grid-productos");
+    const tarjetas = gridProductos.querySelectorAll(".product-card");
+
+    inputBuscador.addEventListener("input", function () {
+      const filtro = inputBuscador.value.toLowerCase();
+
+      tarjetas.forEach(card => {
+        const nombreProducto = card.querySelector(".card-title").textContent.toLowerCase();
+
+        if (nombreProducto.includes(filtro)) {
+          card.closest(".col-md-6").style.display = "block";
+        } else {
+          card.closest(".col-md-6").style.display = "none";
+        }
+      });
+    });
+  });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const myCarousel = new bootstrap.Carousel(document.getElementById('hero-carousel'), {
+      interval: 5000,
+      wrap: true
+    });
+
+    function updateCartCount(count) {
+      let cartBadge = document.querySelector('.cart-icon .badge');
+      
+      if (!cartBadge && count > 0) {
+        const cartIcon = document.querySelector('.cart-icon');
+        cartBadge = document.createElement('span');
+        cartBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+        cartBadge.textContent = count;
+        cartIcon.appendChild(cartBadge);
+      } else if (cartBadge) {
+        if (count > 0) {
+          cartBadge.textContent = count;
+        } else {
+          cartBadge.remove();
+        }
+      }
+    }
+
+    $('.add-to-cart-form').on('submit', function(e) {
+      e.preventDefault();
+      const form = $(this);
+      const url = form.attr('action');
+      
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: form.serialize(),
+        headers: {
+          'X-CSRFToken': form.find('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+          if (response.success) {
+            updateCartCount(response.cart_total);
+            
+            const toast = new bootstrap.Toast(document.getElementById('addToCartToast'));
+            $('#toastMessage').text(`¡${response.product_name} agregado al carrito!`);
+            toast.show();
+          }
+        },
+        error: function(xhr, errmsg, err) {
+          console.error(xhr.status + ": " + xhr.responseText);
+        }
+      });
+    });
+
+    $('#input-busqueda-producto').on('input', function() {
+      const valor = $(this).val().toLowerCase();
+      
+      $('#grid-productos .col-md-6, #grid-productos .col-lg-4, #grid-productos .col-xl-3').each(function() {
+        const titulo = $(this).find('.card-title').text().toLowerCase();
+        $(this).toggle(titulo.includes(valor));
+      });
+    });
+  });
+</script>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="addToCartToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">Carrito</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toastMessage">
+      Producto agregado al carrito
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<style>
+/* Hero Carousel Styles */
+  #hero-carousel {
+    position: relative;
+  }
+  
+  #hero-carousel .carousel-item {
+    height: 70vh;
+    min-height: 400px;
+  }
+  
+  #hero-carousel .carousel-item img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .carousel-caption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+  }
+  
+  /* About Us Section */
+  .about-section {
+    background-color: #f8f9fa;
+  }
+  
+  .about-img {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .about-img:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Product Card Styles */
+  .product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .product-img-container {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 20px;
+  }
+  
+  .product-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+  
+  .product-card:hover .product-img {
+    transform: scale(1.05);
+  }
+  
+  /* Category Card Styles */
+  .category-card {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .category-img {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    padding: 10px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .category-card:hover .category-img {
+    background-color: var(--primary-color);
+  }
+  
+  .category-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .hover-effect {
+    transition: transform 0.3s ease;
+  }
+  
+  .hover-effect:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Button Styles */
+  .btn-success {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .btn-success:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+  
+  /* Cart Icon Styles */
+  .cart-icon {
+    transition: transform 0.3s ease;
+  }
+  
+  .cart-icon:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Toast Notification */
+  .toast {
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    #hero-carousel .carousel-item {
+      height: 50vh;
+    }
+    
+    .carousel-caption {
+      padding-bottom: 2rem;
+    }
+    
+    .carousel-caption h2 {
+      font-size: 1.8rem;
+    }
+    
+    .carousel-caption p {
+      font-size: 1rem;
+    }
+    
+    .carousel-caption .btn {
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+    }
+    
+    .category-img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    #hero-carousel .carousel-item {
+      height: 40vh;
+    }
+    
+    .carousel-caption h2 {
+      font-size: 1.5rem;
+    }
+    
+    .about-section .col-lg-6 {
+      text-align: center;
+    }
+  }
+</style>
+
+{% endblock %}
+

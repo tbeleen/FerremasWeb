@@ -1,0 +1,178 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block content %}
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-4">Productos de esta Marca</h2>
+
+    <!-- Botón Volver Atrás -->
+    <div class="mb-4">
+      <a href="javascript:history.back()" class="btn btn-secondary">
+        ← Volver atrás
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% if productos %}
+        {% for producto in productos %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+          <div class="card h-100 product-card shadow-sm">
+            <img src="{{ producto.imagen_url }}" class="card-img-top p-2" alt="{{ producto.nombre_prod }}" style="height: 180px; object-fit: contain;">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ producto.nombre_prod }}</h5>
+              <p class="card-text text-primary fw-bold">${{ producto.precio_prod }}</p>
+              <span class="badge bg-success align-self-start mb-2">Stock: {{ producto.stock }}</span>
+              
+              <!-- Botón Agregar al carrito -->
+              <div class="mt-auto">
+                {% if request.session.usuario_rol == 'cliente' %}
+                <form method="post" action="{% url 'agregar_al_carrito' producto.id_producto %}" class="add-to-cart-form">
+                  {% csrf_token %}
+                  <div class="input-group">
+                    <input type="number" name="cantidad" value="1" min="1" max="{{ producto.stock }}" class="form-control form-control-sm" style="max-width: 60px;">
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="bi bi-cart-plus"></i> Agregar
+                    </button>
+                  </div>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-sm btn-success w-100">
+                  <i class="bi bi-cart-plus"></i> Agregar
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="alert alert-warning text-center" role="alert">
+            No hay productos disponibles para esta marca.
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Notificación Toast mejorada -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+  <div id="addToCartToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">¡Agregado!</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body bg-light d-flex align-items-center">
+      <i class="bi bi-check-circle-fill text-success me-2"></i>
+      <span id="toastMessage"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+  
+  .card-img-top {
+    background-color: #f8f9fa;
+    object-fit: contain;
+  }
+  
+  @media (max-width: 768px) {
+    .card-img-top {
+      height: 150px !important;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .card-img-top {
+      height: 120px !important;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Función para actualizar el contador del carrito
+    function updateCartCount() {
+        $.ajax({
+            url: '{% url "contar_carrito" %}',
+            type: 'GET',
+            success: function(data) {
+                let cartBadge = $('.cart-icon .badge');
+                
+                if (data.count > 0) {
+                    if (cartBadge.length === 0) {
+                        $('.cart-icon').append('<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">'+data.count+'</span>');
+                    } else {
+                        cartBadge.text(data.count);
+                    }
+                } else {
+                    cartBadge.remove();
+                }
+            }
+        });
+    }
+
+    // Manejar agregar al carrito con AJAX
+    $(document).on('submit', '.add-to-cart-form', function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const productCard = form.closest('.card');
+        const productName = productCard.find('.card-title').text().trim();
+        
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            headers: {
+                'X-CSRFToken': form.find('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Actualizar contador del carrito
+                    updateCartCount();
+                    
+                    // Mostrar notificación con animación
+                    const toastEl = document.getElementById('addToCartToast');
+                    $('#toastMessage').text(productName + ' agregado al carrito');
+                    
+                    const toast = new bootstrap.Toast(toastEl, {
+                        animation: true,
+                        autohide: true,
+                        delay: 3000
+                    });
+                    toast.show();
+                    
+                    // Efecto visual en la tarjeta
+                    productCard.css('transform', 'scale(1.05)');
+                    setTimeout(() => {
+                        productCard.css('transform', '');
+                    }, 300);
+                }
+            },
+            error: function(xhr) {
+                console.error("Error: " + xhr.statusText);
+            }
+        });
+    });
+
+    // Actualizar contador al cargar la página
+    updateCartCount();
+});
+</script>
+{% endblock %}

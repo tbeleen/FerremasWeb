@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferremas - Ferreteria</title>
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    /* Contenedor que envuelve todo menos el footer */
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header, nav y main */
+    header, nav, .main-content {
+      width: 100%;
+    }
+    /* Sidebar y contenido */
+    .content-area {
+      display: flex;
+      flex: 1;
+    }
+    .sidebar {
+      width: 200px;
+      background: #f8f9fa;
+      padding: 20px;
+      border-right: 1px solid #dee2e6;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    /* Footer pegado abajo */
+    footer {
+      flex-shrink: 0;
+    }
+  </style>
+<body>
+   <nav class="navbar bg-body-tertiary">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'cliente' %}">
+            <img src="../../static/app/img/logo2.png" alt="Logo" width="180" height="50" class="d-inline-block align-text-top me-2"></a>
+            <div class="d-flex align-items-center gap-3">
+                <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" style="width: 400px;">
+                <button class="btn btn-outline-success" type="submit">Buscar</button>
+                </form>
+                <i class="bi bi-person"></i>
+                <a class="text-decoration-none" href="#" style="color: black;">Bienvenido {{usuario.nombre}}</a>
+                <a class="text-decoration-none" href="#" style="color: black;">Mis pedidos</a>
+                <a class="text-decoration-none" href=" {% url 'detalleCliente' %} " style="color: black;">Modificar mis datos</a>
+                <a class="text-decoration-none" href="{% url 'logout' %}" style="color: black;">Cerrar Sesión</a>
+            </div>
+        <div>
+            <a href="{% url 'carrito' %}"><i class="bi bi-cart fs-4"></i></a>
+        </div>
+        </div>
+    </nav>
+
+    <ul class="nav justify-content-center" style="background-color: rgb(255, 0, 0);">
+    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" style="color: rgb(255, 255, 255);" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Herramientas</a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" style="color: rgb(255, 0, 0);" href="{% url 'herramientasManu' %}">Herramientas Manuales</a></li>
+        <li><a class="dropdown-item" style="color: rgb(255, 0, 0);" href="{% url 'herramientasElec' %}">Herramientas Eléctricas</a></li>
+    </ul>
+    </li>
+    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" style="color: rgb(255, 255, 255);" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Materiales de Construcción</a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" style="color: rgb(255, 0, 0);" href="{% url 'materialesBasic' %}">Materiales Básicos</a></li>
+        <li><a class="dropdown-item" style="color: rgb(255, 0, 0);" href="{% url 'equiposSeguridad' %}">Equipos de seguridad</a></li>
+    </ul>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" style="color: rgb(255, 255, 255);" href="{% url 'tornillo_y_anclaje' %}">Tornillos y Anclajes</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" style="color: rgb(255, 255, 255);" href="{% url 'fijaciones_y_adhesivos' %}">Fijaciones y Adhesivos</a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link" style="color: rgb(255, 255, 255);" href="{% url 'equiposMedicion' %}">Equipos de Medición</a>
+    </li>
+    </ul>
+    </header>
+     <div id="carouselExampleCaptions" class="carousel slide">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+
+  <div class="carousel-inner" style="max-height: 500px;">
+    <div class="carousel-item active position-relative">
+      <img src="{% static 'app/img/equiposSeguridad.jpg' %}" class="d-block w-100" style="object-fit: cover; height: 500px;" alt="Equipos de seguridad">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);"></div>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Equipos de seguridad</h5>
+        <p>Some representative placeholder content for the first slide.</p>
+      </div>
+    </div>
+
+    <div class="carousel-item position-relative">
+      <img src="{% static 'app/img/herramientas.webp' %}" class="d-block w-100" style="object-fit: cover; height: 500px;" alt="Herramientas Básicas">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);"></div>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Herramientas Básicas</h5>
+        <p>Some representative placeholder content for the second slide.</p>
+      </div>
+    </div>
+
+    <div class="carousel-item position-relative">
+      <img src="{% static 'app/img/materialesConstru.jpg' %}" class="d-block w-100" style="object-fit: cover; height: 500px;" alt="Materiales de Construcción">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);"></div>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Materiales de Construcción</h5>
+        <p>Some representative placeholder content for the third slide.</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Anterior</span>
+  </button>
+
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Siguiente</span>
+  </button>
+</div>
+
+<article class="container mt-5">
+  <div class="title-productos" style="justify-content: center; text-align: center;">
+    <h2 class="mb-4">Productos Destacados</h2>
+    <p>Te ofrecemos los mejores productos de ferretería, construcción y seguridad</p>
+  </div>
+
+  <section class="d-flex flex-wrap gap-4 justify-content-center">
+    {% for producto in productos %}
+    <div class="card" style="width: 18rem; margin: 10px;">
+      <div style="height: 200px; background-color: #fff; display: flex; justify-content: center; align-items: center;">
+        <img src="{{ producto.imagen_url }}" class="card-img-top" alt="Imagen del producto"
+             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{ producto.nombre_prod }}</h5>
+        <p class="card-text">${{ producto.precio_prod }}</p>
+        <a href="{% url 'detalle_producto' producto.id_producto %}" class="btn btn-primary">Ver más</a>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+</article>
+
+
+<article>
+  <div style="justify-content: center; text-align: center; padding: 30px; margin-top: 30px;">
+      <h2>Categorias Destacadas</h2>
+      <p>Estas son las categorias mas destacadas en nuestro sitio.</p>
+    </div>
+  <section>
+  <div style="text-align:center;">
+    <table align="center">
+      <tr>
+        <td align="center" style="padding: 20px;">
+          <img src="{% static 'app/img/categoria1.png' %}" alt="Calefont y Termos" style="width:100px;height:100px;border-radius:50%;"><br>
+          <div style="margin-top:10px;"><a href="#" style="text-decoration: none; color: black;">Herramientas electricas</a></div>
+        </td>
+        <td align="center" style="padding: 20px;">
+          <img src="{% static 'app/img/categoria2.jpg' %}" alt="Aseo" style="width:100px;height:100px;border-radius:50%;"><br>
+          <div style="margin-top:10px;"><a href="#" style="text-decoration: none; color: black;">Herramientas electricas</a></div>
+        </td>
+        <td align="center" style="padding: 20px;">
+          <img src="{% static 'app/img/categoria3.jpeg' %}" alt="Calefacción" style="width:100px;height:100px;border-radius:50%;"><br>
+          <div style="margin-top:10px;"><a href="#" style="text-decoration: none; color: black;">Tornillos</a></div>
+        </td>
+        <td align="center" style="padding: 20px;">
+          <img src="{% static 'app/img/categoria4.webp' %}" alt="Muebles de Cocina" style="width:100px;height:100px;border-radius:50%;"><br>
+          <div style="margin-top:10px;"><a href="#" style="text-decoration: none; color: black;">Adhesivos</a></div>
+        </td>
+        <td align="center" style="padding: 20px;">
+          <img src="{% static 'app/img/categoria5.jpeg' %}" alt="Generadores" style="width:100px;height:100px;border-radius:50%;"><br>
+          <div style="margin-top:10px;"><a href="#" style="text-decoration: none; color: black;">Equipos de Medición</a></div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+
+     <!-- Footer HTML -->
+    <footer style="background-color: #db1717; color: white; padding: 40px 0; text-align: center;">
+        <div style="max-width: 1200px; margin: auto;">
+            <p style="margin: 0;">&copy; 2025 Ferremas. Todos los derechos reservados.</p>
+            <nav style="margin-top: 10px;">
+            <a href="/sobre-nosotros" style="color: #ccc; margin: 0 15px; text-decoration: none;">Sobre Nosotros</a>
+            <a href="/contacto" style="color: #ccc; margin: 0 15px; text-decoration: none;">Contacto</a>
+            <a href="/terminos" style="color: #ccc; margin: 0 15px; text-decoration: none;">Términos y Condiciones</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+</body>
+</html>

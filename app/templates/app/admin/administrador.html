@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar a {
+            color: #333 !important;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .table {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Botones más elegantes y con separación */
+        .btn-group-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-modificar {
+            background-color: #0d6efd;
+            border: none;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-modificar:hover {
+            background-color: #0b5ed7;
+        }
+
+        .btn-eliminar {
+            background-color: #dc3545;
+            border: none;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #bb2d3b;
+        }
+
+        footer {
+            background-color: #202020;
+            color: #ccc;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #bbb;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg px-4">
+    <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'administrador' %}">
+            <img src="../../static/app/img/logo2.png" alt="Logo" width="160" class="me-2">
+        </a>
+
+        <!-- Contenedor para centrar el buscador -->
+        <div class="mx-auto order-1 order-lg-0 my-2 my-lg-0">
+            <div class="d-flex" role="search">
+                <input id="input-busqueda" class="form-control me-2" type="search" placeholder="Buscar por RUT, Nombre o Rol" aria-label="Buscar" style="width: 300px;">
+            </div>
+        </div>
+
+        <!-- Parte derecha de la navbar -->
+        <div class="d-flex align-items-center gap-3 order-2">
+            <i class="bi bi-person fs-4"></i>
+            <span><strong>{{ usuario.nombre }}</strong></span>
+            <a href="{% url 'informes' %}" class="text-decoration-none">Informes</a>
+            <a href="{% url 'logout' %}" class="text-decoration-none">Cerrar Sesión</a>
+        </div>
+    </div>
+    </nav>
+
+    <div class="container py-5">
+        <a href="{% url 'agregarTrab' %}" class="btn btn-success mb-3">
+            <i class="bi bi-plus-circle"></i> Registrar Trabajador
+        </a>
+        <h2>Trabajadores Registrados</h2>
+        
+        {% if trabajadores %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>RUT</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Comuna</th> 
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-trabajadores">
+                    {% for trabajador in trabajadores %}
+                    <tr>
+                        <td>{{ trabajador.rut }}</td>
+                        <td>{{ trabajador.nombre }}</td>
+                        <td>{{ trabajador.apellido }}</td>
+                        <td>{{ trabajador.email }}</td>
+                        <td>{{ trabajador.telefono }}</td>
+                        <td>{{ trabajador.comuna }}</td>
+                        <td>{{ trabajador.rol|title }}</td>
+                        <td>
+                            <div class="btn-group-actions">
+                                <a href="{% url 'modificar_trabajador' trabajador.rut %}" class="btn btn-modificar btn-sm" title="Modificar">
+                                    <i class="bi bi-pencil-square"></i> Modificar
+                                </a>
+                                <form action="{% url 'eliminar_Trabajador' trabajador.rut %}" method="post" onsubmit="return confirm('¿Seguro que quieres eliminar este trabajador?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-eliminar btn-sm" title="Eliminar">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No hay trabajadores disponibles.</div>
+        <pre>Debug: {{ trabajadores|default:"No hay datos" }}</pre>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Ferremas. Todos los derechos reservados.</p>
+        <nav class="mt-2">
+            <a href="/sobre-nosotros">Sobre Nosotros</a>
+            <a href="/contacto">Contacto</a>
+            <a href="/terminos">Términos y Condiciones</a>
+        </nav>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputBusqueda = document.getElementById('input-busqueda');
+            const filas = document.querySelectorAll('#tabla-trabajadores tr');
+
+            inputBusqueda.addEventListener('input', () => {
+                const valor = inputBusqueda.value.toLowerCase();
+
+                filas.forEach(fila => {
+                    const rut = fila.children[0].textContent.toLowerCase();     // columna 0: RUT
+                    const nombre = fila.children[1].textContent.toLowerCase();  // columna 1: Nombre
+                    const rol = fila.children[6].textContent.toLowerCase();
+
+                    const coincide = rut.includes(valor) || nombre.includes(valor) || rol.includes(valor)
+                    fila.style.display = coincide ? '' : 'none';
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
