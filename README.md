@@ -82,3 +82,6 @@ ________________________________________
 ________________________________________
 # 📌 Conclusión
 El desarrollo de este sistema de comercio electrónico permite a FERREMAS ampliar su alcance comercial, optimizar sus operaciones internas y ofrecer una experiencia de compra moderna y eficiente. Esta solución modular y escalable prepara a la empresa para competir en el mercado digital, integrar nuevas funcionalidades y crecer a nivel nacional.
+
+Link dirve: 
+* https://drive.google.com/drive/folders/1lkPvWTTVWj3MsBdtiUJetwczXnkziltn?usp=sharing
